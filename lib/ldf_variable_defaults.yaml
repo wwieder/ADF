@@ -576,6 +576,24 @@ TOTVEGC:
   avg_method: 'sum'
   table_unit: "PgC"
 
+NFIX: # Nitrogen Fixation
+  category: "Nitrogen"
+  colormap: "gist_earth_r"
+  contour_levels_range: [0., 1.2, 0.05]
+  diff_colormap: "PiYG"
+  diff_contour_range: [-0.4,0.4,0.05]
+  scale_factor: 86400  #seconds to days
+  add_offset: 0
+  new_unit: "gN m$^{-2}$ d$^{-1}$"
+  mpl:
+    colorbar:
+      label : "gN m$^{-2}$ d$^{-1}$"
+  pct_diff_contour_levels: [-200,-100,-75,-50,-25,-10,-5,0,5,10,25,50,75,100,200]
+  pct_diff_colormap: "PiYG"
+  scale_factor_table: 0.000365  #days to years, g/m2 to Tg globally
+  avg_method: 'sum'
+  table_unit: "TgN y$^{-1}$"
+
 #+++++++++++
 # C Isotopes
 #+++++++++++
