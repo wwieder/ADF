@@ -65,7 +65,7 @@ diag_basic_info:
 
     #Does the user want plotting of unstructured (native) grid?
     #If "false" or missing, then the ADF expects ALL cases to be on lat/lon grids:
-    unstructured_plotting: false
+    unstructured_plotting: true
 
     #Is this a model vs observations comparison?
     #If "false" or missing, then a model-model comparison is assumed:
@@ -81,10 +81,10 @@ diag_basic_info:
     #Location of observational datasets:
     #Note: this only matters if "compare_obs" is true and the path
     #isn't specified in the variable defaults file.
-    obs_data_loc: /glade/campaign/cgd/amp/amwg/ADF_obs
+    obs_data_loc: /glade/campaign/cgd/tss/people/oleson/lnd_diag_data/obs_data
 
     #Location where re-gridded and interpolated CAM climatology files are stored:
-    cam_regrid_loc: /glade/derecho/scratch/${user}/ADF_LatLon/regrid
+    cam_regrid_loc: /glade/derecho/scratch/${user}/ADF_unstruct/regrid
 
     #Overwrite CAM re-gridded files?
     #If false, or missing, then regridding will be skipped for regridded variables
@@ -92,12 +92,15 @@ diag_basic_info:
     cam_overwrite_regrid: false
 
     #Location where diagnostic plots are stored:
-    cam_diag_plot_loc: /glade/derecho/scratch/${user}/ADF_LatLon/plots
+    cam_diag_plot_loc: /glade/derecho/scratch/${user}/ADF_unstruct/plots
 
     #Location of ADF variable plotting defaults YAML file:
     #If left blank or missing, ADF/lib/adf_variable_defaults.yaml will be used
     #Uncomment and change path for custom variable defaults file
     defaults_file: lib/ldf_variable_defaults.yaml
+
+    # location of land regions YAML file (only used in regional_climatology plots)
+    regions_file: lib/regions_lnd.yaml
 
     #Longitude line on which to center all lat/lon maps.
     #If this config option is missing then the central
@@ -110,11 +113,11 @@ diag_basic_info:
     #you set it to "*" then it will default
     #to all of the processors available on a
     #single node/machine:
-    num_procs: 1
+    num_procs: 8
 
     #If set to true, then redo all plots even if they already exist.
     #If set to false, then if a plot is found it will be skipped:
-    redo_plot: true
+    redo_plot: false
 
 #This second set of variables provides info for the CAM simulation(s) being diagnosed:
 diag_cam_climo:
@@ -123,50 +126,43 @@ diag_cam_climo:
     # eg. cam.h0 or ocn.pop.h.ecosys.nday1 or hist_str: [cam.h2,cam.h0]  
     # Only affects timeseries as everything else uses the created timeseries 
     # Default: 
-    hist_str: clm2.h0
+    hist_str: clm2.h0a
 
     #Calculate climatologies?
     #If false, the climatology files will not be created:
     calc_cam_climo: true
 
+    #Location of CAM climatologies (to be created and then used by this script)
+    cam_climo_loc: /glade/derecho/scratch/${user}/ADF_unstruct/${diag_cam_climo.cam_case_name}/climo
+
     #Overwrite CAM climatology files?
     #If false, or not prsent, then already existing climatology files will be skipped:
     cam_overwrite_climo: false
 
-    #Location of CAM climatologies (to be created and then used by this script)
-    cam_climo_loc: /glade/derecho/scratch/${user}/ADF_LatLon/${diag_cam_climo.cam_case_name}/climo
-
     #Name of CAM case (or CAM run name):
-    cam_case_name: b.e30_alpha06b.B1850C_LTso.ne30_t232_wgx3.143
+    cam_case_name: b.e30_alpha07c_cesm.B1850C_MTt4s.ne30_t232_wgx3.251.001
 
     #Case nickname
     #NOTE: if nickname starts with '0' - nickname must be in quotes!
     # ie '026a' as opposed to 026a
     #If missing or left blank, will default to cam_case_name
-    case_nickname: '143'
+    case_nickname: 'BMTt4s_251'
 
     #Location of CAM history (h0) files:
-    cam_hist_loc: /glade/derecho/scratch/hannay/archive/${diag_cam_climo.cam_case_name}/lnd/hist/
+    cam_hist_loc: /glade/derecho/scratch/tilmes/archive/${diag_cam_climo.cam_case_name}/lnd/hist/
 
-    # SE to FV regridding options
-    # Leave these blank if not on the native grid
-    #-----------------------------
-    # Weights file:
-    weights_file: /glade/work/wwieder/map_ne30pg3_to_fv0.9x1.25_scripgrids_conserve_nomask_c250108.nc
-    # Regridding method:
-    regrid_method: 'coservative'
-    # Lat/lon file:
-    latlon_file: /glade/derecho/scratch/wwieder/ctsm5.3.018_SP_f09_t232_mask/run/ctsm5.3.018_SP_f09_t232_mask.clm2.h0.0001-01.nc
+    # If unstructured_plotting, a mesh file is required!
+    mesh_file: /glade/campaign/cesm/cesmdata/inputdata/share/meshes/ne30pg3_ESMFmesh_cdf5_c20211018.nc
 
     #model year when time series files should start:
     #Note:  Leaving this entry blank will make time series
     #       start at earliest available year.
-    start_year: 30
-
+    start_year: 11
+    climo_start_year: 11
     #model year when time series files should end:
     #Note:  Leaving this entry blank will make time series
     #       end at latest available year.
-    end_year: 40
+    end_year: 31
 
     #Do time series files exist?
     #If True, then diagnostics assumes that model files are already time series.
@@ -184,7 +180,7 @@ diag_cam_climo:
     cam_overwrite_ts: false
 
     #Location where time series files are (or will be) stored:
-    cam_ts_loc: /glade/derecho/scratch/${user}/ADF_LatLon/${diag_cam_climo.cam_case_name}/ts
+    cam_ts_loc: /glade/derecho/scratch/${user}/ADF_unstruct/${diag_cam_climo.cam_case_name}/ts
 
 
 #This third set of variables provide info for the CAM baseline climatologies.
@@ -195,7 +191,7 @@ diag_cam_baseline_climo:
     # eg. cam.h0 or ocn.pop.h.ecosys.nday1 or hist_str: [cam.h2,cam.h0]  
     # Only affects timeseries as everything else uses the created timeseries 
     # Default: 
-    hist_str: clm2.h0
+    hist_str: clm2.h0a
 
     #Calculate cam baseline climatologies?
     #If false, the climatology files will not be created:
@@ -206,30 +202,34 @@ diag_cam_baseline_climo:
     cam_overwrite_climo: false
 
     #Name of CAM baseline case:
-    cam_case_name: ctsm53019_f09_BNF_hist
+    cam_case_name: ctsm5.4.004_bgc_ne30_130_pSASU
 
     #Baseline case nickname
     #NOTE: if nickname starts with '0' - nickname must be in quotes!
     # ie '026a' as opposed to 026a
     #If missing or left blank, will default to cam_case_name
-    case_nickname: '5.3.019_BNF'
+    case_nickname: 'I_130_pSASU'
 
     #Location of CAM baseline history (h0) files:
     #Example test files
-    cam_hist_loc: /glade/derecho/scratch/slevis/archive/${diag_cam_baseline_climo.cam_case_name}/lnd/hist/
+    cam_hist_loc: /glade/derecho/scratch/wwieder/archive/${diag_cam_baseline_climo.cam_case_name}/lnd/hist/
 
-    #Location of CAM climatologies (to be created and then used by this script)
-    cam_climo_loc: /glade/derecho/scratch/${user}/ADF_LatLon/${diag_cam_baseline_climo.cam_case_name}/climo
+    # If unstructured_plotting, a mesh file is required!
+    mesh_file: /glade/campaign/cesm/cesmdata/inputdata/share/meshes/ne30pg3_ESMFmesh_cdf5_c20211018.nc
+
+    #Location of baseline CAM climatologies:
+    cam_climo_loc: /glade/derecho/scratch/${user}/ADF_unstruct/${diag_cam_baseline_climo.cam_case_name}/climo
 
     #model year when time series files should start:
     #Note:  Leaving this entry blank will make time series
     #       start at earliest available year.
-    start_year: 1850
+    start_year: 11
+    climo_start_year: 11
 
     #model year when time series files should end:
     #Note:  Leaving this entry blank will make time series
     #       end at latest available year.
-    end_year: 1860
+    end_year: 31
 
     #Do time series files need to be generated?
     #If True, then diagnostics assumes that model files are already time series.
@@ -246,7 +246,9 @@ diag_cam_baseline_climo:
     cam_overwrite_ts: false
 
     #Location where time series files are (or will be) stored:
-    cam_ts_loc: /glade/derecho/scratch/${user}/ADF_LatLon/${diag_cam_baseline_climo.cam_case_name}/ts
+    cam_ts_loc: /glade/derecho/scratch/${user}/ADF_unstruct/${diag_cam_baseline_climo.cam_case_name}/ts
+
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++
 #These variables below only matter if you are using
@@ -261,39 +263,108 @@ diag_cam_baseline_climo:
 #Name of time-averaging scripts being used to generate climatologies.
 #These scripts must be located in "scripts/averaging":
 time_averaging_scripts:
-    - create_climo_files
+   - create_climo_files
 
 #Name of regridding scripts being used.
 #These scripts must be located in "scripts/regridding":
 regridding_scripts:
-    - regrid_and_vert_interp
+  #- regrid_and_vert_interp
 
 #List of analysis scripts being used.
 #These scripts must be located in "scripts/analysis":
 analysis_scripts:
-    - lmwg_table
+     - lmwg_table
 
 #List of plotting scripts being used.
 #These scripts must be located in "scripts/plotting":
 plotting_scripts:
-    - global_latlon_map
-    - global_mean_timeseries_lnd
-    - polar_map
+     - global_latlon_map
+     - global_mean_timeseries_lnd
+     - polar_map
+     - regional_climatology
 
-#List of CAM variables that will be processesd:
-#If CVDP is to be run PSL, TREFHT, TS and PRECT (or PRECC and PRECL) should be listed
+#List of variables that will be processesd:
+#Shorter list here, for efficiency of testing
 diag_var_list:
+    - DSTFLXT
+    - DSTDEP
+    - BCDEP
+    - NDEP_TO_SMINN
     - TSA
+    - TV
     - PREC
     - ELAI
-    - GPP
-    - NPP
     - FSDS
-    - ALTMAX
+    - FLDS
+    - QBOT
+    - ASA
+    - RNET
+    #- FSH
     - ET
-    - GRAINC_TO_FOOD
-    - TOTRUNOFF
-    - DSTFLXT
-    - MEG_isoprene 
+    - FCTR
+    - FGEV
+    - FCEV
+    - QRUNOFF_TO_COUPLER 
+    - SNOWDP
+    #- TOTVEGC
+    - GPP
+    #- NEE
+    #- NPP
+    #- NBP  
+    #- NPP_NUPTAKE
+    - BTRANMN
+    #- TOTECOSYSC
+    #- TOTSOMC_1m
+    #- ALTMAX
+    - FAREA_BURNED
+    #- TWS
+    #- DSTFLXT
+    #- DSTDEP
+    #- BCDEP
+    #- NDEP_TO_SMINN  
+    #- GRAINC_TO_FOOD  
+    #- C13_GPP_pm
+    # - C13_TOTVEGC_pm
+    #- C14_GPP_pm
+    #- C14_TOTVEGC_pm
+ 
+region_list:
+    - Global
+    - N Hemisphere Land
+    - S Hemisphere Land
+    - Polar
+    - Alaskan Arctic
+    - Canadian Arctic
+    - Greenland
+    - Russian Arctic
+    # - Antarctica
+    - Alaska
+    - Northwest Canada
+    - Central Canada
+    - Eastern Canada
+    - Northern Europe
+    - Western Siberia
+    - Eastern Siberia
+    - Western US
+    - Central US
+    - Eastern US
+    - Europe
+    - Mediterranean
+    - Central America
+    - Amazonia
+    - Central Africa
+    - Indonesia
+    - Brazil
+    - Sahel
+    - Southern Africa
+    - India
+    - Indochina
+    #- Sahara Desert
+    #- Arabian Peninsula
+    - Australia
+    #- Central Asia ## Was Broken... probably because there were two? 
+    #- Mongolia
+    #- Tibetan Plateau
+
 
 #END OF FILE
