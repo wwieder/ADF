@@ -80,6 +80,11 @@ def regional_climatology(adfobj):
                                'QRUNOFF_TO_COUPLER','ET','FCTR','FCEV',
                                'SNOWDP','QBOT','SOILWATER_10CM','AREA_BURNED',
                                ]
+# For polar focused analyses
+#                            'FSDS','FLDS','RNET','ASA',
+#                            'QRUNOFF_TO_COUPLER','ET','TWS','QBOT',
+#                            'QRUNOFF_ICE_TO_COUPLER','QRGWL','SNOWDP','ALTMAX',
+#                           ]
 
 #    regional_climo_var_list = ['TSA','PREC','ELAI', 
 #                               'FSDS','FLDS','GPP','ASA',

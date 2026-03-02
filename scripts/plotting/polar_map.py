@@ -88,6 +88,8 @@ def polar_map(adfobj):
         hemis = ["NHPolar", "SHPolar"]
     if comp == "lnd":
         hemis = ["Arctic"]
+        # Todo, give users control over making SH plots? Currently set off
+        #hemis = ["Arctic", "Antarctic"]
 
     res = adfobj.variable_defaults # will be dict of variable-specific plot preferences
     # or an empty dictionary if use_defaults was not specified in YAML.
