@@ -62,7 +62,7 @@
 #+++++++++++++
 
 default_ptypes: ["Tables","LatLon","TimeSeries",
-  "Arctic","RegionalClimo","RegionalTimeSeries","Special"]
+  "Arctic","Antarctic","RegionalClimo","RegionalTimeSeries","Special"]
 
 #+++++++++++++
 # Constants
@@ -405,6 +405,30 @@ QRUNOFF_TO_COUPLER: # runoff to coupler
   obs_name: "GRUN"
   obs_var_name: "RUNOFF" #mm/d 
 
+QRUNOFF_ICE_TO_COUPLER: # ice runoff to coupler
+  category: "Hydrology"
+  colormap: "Blues"
+  scale_factor: 86400
+  add_offset: 0
+  new_unit: "mm d$^{-1}$"
+  contour_levels: [-0.1,0.,0.1,0.2,0.3,1.,2.,3.,]
+  diff_contour_range: [-1.,1.,0.1]
+  mpl:
+    colorbar:
+      label : "mm d$^{-1}$"
+
+QRGWL: # surface runoff at glaciers (liquid only), wetlands, lakes; also includes melted ice runoff from QSNWCPICE 
+  category: "Hydrology"
+  colormap: "Blues"
+  scale_factor: 86400
+  add_offset: 0
+  new_unit: "mm d$^{-1}$"
+  contour_levels: [-0.1,0.,0.1,0.2,0.3,1.,2.,3.,]
+  diff_contour_range: [-1.,1.,0.1]
+  mpl:
+    colorbar:
+      label : "mm d$^{-1}$"
+  
 #+++++++++++
 # Category: Vegetation
 #+++++++++++

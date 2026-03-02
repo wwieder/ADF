@@ -796,7 +796,7 @@ def make_polar_plot(wks, case_nickname, base_nickname,
 
     if (hemisphere.upper() == "NH") or (hemisphere == "Arctic"):
         proj = ccrs.NorthPolarStereo()
-    elif hemisphere.upper() == "SH":
+    elif hemisphere.upper() == "SH" or (hemisphere == "Antarctic"):
         proj = ccrs.SouthPolarStereo()
     else:
         raise AdfError(f'[make_polar_plot] hemisphere not specified, must be NH or SH; hemisphere set as {hemisphere}')
