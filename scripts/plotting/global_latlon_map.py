@@ -266,6 +266,11 @@ def process_case(adfobj, case_name, case_idx, var, odata, seasons,
             print(f"\t    WARNING: 3D variable found but no pressure levels specified")
             return
 
+    # Log the grid the panels are compared on, and how each side got onto it:
+    adfobj.data.log_regrid_note(
+        "global_latlon_map", case_name, var,
+        unstructured_plotting=vres["unstructured_plotting"],
+    )
     process_plots(adfobj, mdata, odata, case_name, case_idx,
                  var, seasons, pres_levs, plot_loc, plot_type,
                  redo_plot, vres, web_category, has_dims)
@@ -480,9 +485,8 @@ def process_2d_plots(adfobj, mdata, odata, case_name, case_nickname,
         # Calculate seasonal means and differences
         mseason, oseason = process_seasonal_data(mdata, odata, s)
         dseason = utils.array_diff(mseason, oseason)
-        # Land: blank where the baseline is ~zero (e.g. no snow or vegetation)
-        rel_tol = 1e-6 if adfobj.model_component == "lnd" else None
-        pseason = utils.array_diff(mseason, oseason, percent=True, rel_tol=rel_tol)
+        # Blank where the baseline is ~zero (see utils.pct_change):
+        pseason = utils.array_diff(mseason, oseason, percent=True)
 
         vres["season"] = s
         vres["var"] = var

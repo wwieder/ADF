@@ -754,10 +754,6 @@ class AdfInfo(AdfConfig):
             unstructured_plotting = False
         self.__unstructured_plotting = unstructured_plotting
 
-        # Mesh file
-        mesh_file = self.get_basic_info("mesh_file")
-        self.__mesh_file = mesh_file
-
         # Case names:
         case_names = self.get_cam_info("cam_case_name", required=True)
 
@@ -1233,13 +1229,6 @@ class AdfInfo(AdfConfig):
     def unstructured_plotting(self):
         """Return the "unstructured_plotting" logical to the user if requested."""
         return self.__unstructured_plotting
-
-    # Create property needed to return the "diag_basic_info" "mesh_file" to user
-    # (the diagnostics use each case's own mesh, from "mesh_files", instead):
-    @property
-    def mesh_file(self):
-        """Return the "mesh_file" path from "diag_basic_info" (None if not given)."""
-        return self.__mesh_file
 
     # Create property needed to return the test case and baseline mesh files to user:
     @property

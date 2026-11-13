@@ -168,8 +168,6 @@ def zonal_mean(adfobj):
         if unstruct_plotting:
             #config["unstructured_plotting"] = unstruct_plotting
             unstructured = unstruct_plotting
-            #mesh_file = '/glade/campaign/cesm/cesmdata/inputdata/share/meshes/ne30pg3_ESMFmesh_cdf5_c20211018.nc'#adfobj.mesh_file
-            #kwargs["mesh_file"] = mesh_file
         else:
             unstructured = False
         #config["unstructured_plotting"] = unstructured
@@ -370,6 +368,12 @@ def zonal_mean(adfobj):
                 def make_plot(wks, log_p):
                     """Test vs baseline, or whichever of the two has data."""
                     if (mdata is not None) and (case_odata is not None):
+                        # Log the grid the panels are compared on, and how
+                        # each side got onto it:
+                        adfobj.data.log_regrid_note(
+                            "zonal_mean", case_name, var,
+                            unstructured_plotting=vres.get("unstructured_plotting", False),
+                        )
                         pf.plot_zonal_mean_and_save(adfobj, wks, case_nickname, adfobj.data.ref_nickname,
                                                     [syear_cases[case_idx],eyear_cases[case_idx]],
                                                     [syear_baseline,eyear_baseline],
