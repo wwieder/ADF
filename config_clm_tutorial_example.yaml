@@ -371,6 +371,11 @@ region_list:
     - Greenland
     - Russian Arctic
     #- Antarctica
+    - Weddell Sea Antarctica
+    - Ross Sea Antarctica
+    - Amundsen Sea Antarctica
+    - Indian Ocean Antarctica
+    - Pacific Ocean Antarctica
     - Alaska
     - Northwest Canada
     - Central Canada
