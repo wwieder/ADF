@@ -10,6 +10,8 @@ import warnings  # use to warn user about missing files.
 import numpy as np
 import yaml
 import xarray as xr
+import matplotlib.path as mpath
+from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
@@ -39,6 +41,15 @@ REGION_MAP_EXTENTS = {
     "East Asia": [70, 145, 5, 55],
     "Eurasia": [20, 130, 10, 80],
 }
+
+# Regions entirely poleward of these latitudes get a polar stereographic
+# region map: south of -60 (Antarctica and its sectors) or north of 50 (the
+# Arctic and boreal regions, e.g. Greenland, Alaska, Siberia, Canada).
+SOUTH_POLAR_REGION_LAT = -60
+NORTH_POLAR_REGION_LAT = 50
+# The polar maps show everything poleward of these latitudes:
+SOUTH_POLAR_MAP_LAT = -60
+NORTH_POLAR_MAP_LAT = 40
 
 
 def regional_climatology(adfobj):
@@ -509,12 +520,18 @@ def region_sum(var, wgt):
 def _region_uxarray(dset, field, box_w, box_e, box_s, box_n):
     """Subset unstructured data to the faces with centres inside the box."""
     grid = dset.uxgrid
-    face_lons = grid.face_lon.values
+    face_lons = grid.face_lon.values % 360
     face_lats = grid.face_lat.values
 
     # Create a boolean mask for faces within your domain
-    in_domain = ((face_lons >= box_w) & (face_lons <= box_e) &
-                 (face_lats >= box_s) & (face_lats <= box_n))
+    box_w, box_e = _box_0_360(box_w, box_e)
+    if box_w < box_e:
+        in_lon = (face_lons >= box_w) & (face_lons <= box_e)
+    else:
+        # The box crosses the prime meridian:
+        in_lon = (face_lons >= box_w) | (face_lons <= box_e)
+    # End if
+    in_domain = in_lon & (face_lats >= box_s) & (face_lats <= box_n)
     face_indices = np.where(in_domain)[0]
 
     domain_subset = dset[field].isel(n_face=face_indices)
@@ -575,8 +592,31 @@ def _region_xarray(dset, field, box_w, box_e, box_s, box_n):
     return subset[field], wgt_subset
 
 
-def _set_map_extent(map_ax, region_name, box_e, box_s):
+def _polar_hemisphere(box_s, box_n):
+    """"south" or "north" if a region gets a polar map, else None."""
+    if box_n <= SOUTH_POLAR_REGION_LAT:
+        return "south"
+    if box_s >= NORTH_POLAR_REGION_LAT:
+        return "north"
+    return None
+
+
+def _set_map_extent(map_ax, region_name, box_e, box_s, box_n):
     """Zoom the region map to the region."""
+    polar = _polar_hemisphere(box_s, box_n)
+    if polar is not None:
+        # Everything poleward of the map latitude, in a round frame:
+        if polar == "south":
+            lat_extent = [-90, SOUTH_POLAR_MAP_LAT]
+        else:
+            lat_extent = [NORTH_POLAR_MAP_LAT, 90]
+        # End if
+        map_ax.set_extent([-180, 180, *lat_extent], crs=ccrs.PlateCarree())
+        theta = np.linspace(0, 2 * np.pi, 100)
+        circle = mpath.Path(np.vstack([np.sin(theta), np.cos(theta)]).T * 0.5 + 0.5)
+        map_ax.set_boundary(circle, transform=map_ax.transAxes)
+        return
+    # End if
     if region_name in REGION_MAP_EXTENTS:
         extent = REGION_MAP_EXTENTS[region_name]
     elif (box_s >= 30) and (box_e <= -5):
@@ -597,10 +637,35 @@ def _set_map_extent(map_ax, region_name, box_e, box_s):
     map_ax.set_extent(extent, crs=ccrs.PlateCarree())
 
 
-def _plot_region_map(fig, region_var):
-    """Draw where the region's data is, in the first panel, on its own grid."""
+def _polar_polycollection(mask, projection):
+    """The faces of unstructured `mask` as polygons in `projection`'s coordinates.
+
+    Cartopy would reproject each lon/lat polygon as a shape, taking one across
+    the dateline to wrap the globe; projecting the corners as points instead
+    is right on a polar map, where the dateline is just a line from the pole.
+    """
+    lonlat = mask.to_polycollection(periodic_elements="ignore", cache=False)
+    verts = []
+    for path in lonlat.get_paths():
+        xyz = projection.transform_points(ccrs.PlateCarree(),
+                                          path.vertices[:, 0], path.vertices[:, 1])
+        verts.append(xyz[:, :2])
+    # End for
+    collection = PolyCollection(verts)
+    collection.set_array(lonlat.get_array())
+    return collection
+
+
+def _plot_region_map(fig, region_var, polar=None):
+    """Draw where the region's data is, in the first panel, on its own grid.
+
+    The map is south or north polar stereographic if `polar` is "south" or
+    "north" (see `_polar_hemisphere`), else lat/lon.
+    """
     transform = ccrs.PlateCarree()
-    map_ax = fig.add_subplot(4, 4, 1, projection=ccrs.PlateCarree())
+    projection = {"south": ccrs.SouthPolarStereo(),
+                  "north": ccrs.NorthPolarStereo()}.get(polar, ccrs.PlateCarree())
+    map_ax = fig.add_subplot(4, 4, 1, projection=projection)
     map_ax.coastlines()
     if "time" in region_var.dims:
         region_var = region_var.isel(time=0)
@@ -608,8 +673,15 @@ def _plot_region_map(fig, region_var):
     mask = region_var.copy()
     mask.values = np.where(np.isfinite(mask.values), 1.0, np.nan)
     if hasattr(region_var, "uxgrid"):
-        collection = mask.to_polycollection()
-        collection.set_transform(transform)
+        if polar:
+            # The faces' corners projected one by one, so the faces across the
+            # dateline (no edge on a polar map) are drawn whole:
+            collection = _polar_polycollection(mask, projection)
+        else:
+            # Faces across the dateline are left out (they would span the map):
+            collection = mask.to_polycollection()
+            collection.set_transform(transform)
+        # End if
         collection.set_cmap("rainbow_r")
         collection.set_antialiased(False)
         map_ax.add_collection(collection)
@@ -695,8 +767,9 @@ def make_regional_plots(adfobj, setup, plot_series, plot_kind, title):
 
             ## Define region in first subplot
             if plt_counter == 1:
-                map_ax = _plot_region_map(fig, region_var)
-                _set_map_extent(map_ax, region_name, region[1], region[2])
+                map_ax = _plot_region_map(fig, region_var,
+                                          polar=_polar_hemisphere(region[2], region[3]))
+                _set_map_extent(map_ax, region_name, region[1], region[2], region[3])
             # End if
             plt_counter += 1
         # End for
