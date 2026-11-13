@@ -224,5 +224,8 @@ if __name__ == "__main__":
     #End diag script
     #+++++++++++++++
     print('\nADF diagnostics has completed successfully.')
+    print("ADF plot location(s):")
+    for plot_loc in diag.plot_location:
+        print(f"    {plot_loc}")
     print_run_time(adf_start_time)
     sys.exit(0)
