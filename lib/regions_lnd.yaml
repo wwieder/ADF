@@ -6,59 +6,59 @@
 Global:
   lat_bounds: [-90, 90]
   lon_bounds: [-180, 180]
-  region_category: None 
+  region_category: Global
 N Hemisphere Land:
   lat_bounds: [0, 90]
   lon_bounds: [-180, 180]
-  region_category: None 
+  region_category: Global
 S Hemisphere Land:
   lat_bounds: [-90, 0]
   lon_bounds: [-180, 180]
-  region_category: None 
+  region_category: Global
 Polar:
   lat_bounds: [60, 90]
   lon_bounds: [-180, 180]
-  region_category: Polar 
+  region_category: Arctic
 Alaskan Arctic:
   lat_bounds: [66.5, 72] 
   lon_bounds: [-170, -140]
-  region_category: Polar 
+  region_category: Arctic
 Canadian Arctic:
   lat_bounds: [66.5, 90] 
   lon_bounds: [-120, -60]
-  region_category: Polar 
+  region_category: Arctic
 Greenland:
   lat_bounds: [60, 90] 
   lon_bounds: [-60, -20]
-  region_category: Polar 
+  region_category: Arctic
 Russian Arctic:
   lat_bounds: [66.5, 90]
   lon_bounds: [70, 170]
-  region_category: Polar 
+  region_category: Arctic
 Antarctica:
   lat_bounds: [-90, -65]
   lon_bounds: [-180, 180]
-  region_category: Polar
+  region_category: Antarctic
 # Rough box for the Weddell Sea drainage basin: eastern Antarctic Peninsula,
 # Filchner-Ronne Ice Shelf catchments (Ellsworth Land to Coats Land)
 Weddell Sea Antarctica:
   lat_bounds: [-90, -63]
   lon_bounds: [-82, -10]
-  region_category: Polar
+  region_category: Antarctic
 # Rough box for the Ross Sea drainage basin: Siple Coast ice streams and
 # Marie Byrd Land (West Antarctica) plus the Transantarctic Mountain outlet
 # glaciers and Victoria Land (East Antarctica). Crosses the dateline (west > east).
 Ross Sea Antarctica:
   lat_bounds: [-90, -70]
   lon_bounds: [155, -120]
-  region_category: Polar
+  region_category: Antarctic
 # Rough box for the Amundsen Sea drainage basin: Pine Island, Thwaites, Smith,
 # Pope and Kohler glacier catchments (West Antarctica). Sits between the Ross
 # (east edge -120) and Weddell (west edge -82) boxes.
 Amundsen Sea Antarctica:
   lat_bounds: [-82, -72]
   lon_bounds: [-120, -85]
-  region_category: Polar
+  region_category: Antarctic
 # Rough box for the Indian Ocean sector of East Antarctica (20E-90E, the
 # standard Southern Ocean sector bounds): Dronning Maud Land east of 20E,
 # Enderby, Kemp, Mac.Robertson and Princess Elizabeth Lands, incl. the
@@ -66,7 +66,7 @@ Amundsen Sea Antarctica:
 Indian Ocean Antarctica:
   lat_bounds: [-82, -64]
   lon_bounds: [20, 90]
-  region_category: Polar
+  region_category: Antarctic
 # Rough box for the (Western) Pacific Ocean sector of East Antarctica (90E-160E
 # standard sector, trimmed to 155E so it abuts the Ross Sea box): Queen Mary,
 # Wilkes, Adelie and George V Lands, incl. the Denman, Totten and Mertz/Ninnis
@@ -74,7 +74,7 @@ Indian Ocean Antarctica:
 Pacific Ocean Antarctica:
   lat_bounds: [-82, -64]
   lon_bounds: [90, 155]
-  region_category: Polar
+  region_category: Antarctic
 Alaska:
   lat_bounds: [59, 66.5]
   lon_bounds: [-170, -140]
